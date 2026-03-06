@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String     @id @default(cuid())
+  uid          String     @unique // Firebase UID
+  email        String     @unique
+  name         String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  wallet       Wallet?
+  positions    Position[]
+  trades       Trade[]
+  orders       Order[]
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  balance   Decimal  @default(100000) // Default 100k USDT
+  currency  String   @default("USDT")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Position {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  symbol           String
+  side             String   // LONG, SHORT
+  size             Decimal
+  entryPrice       Decimal
+  leverage         Int      @default(1)
+  marginType       String   @default("CROSS") // CROSS, ISOLATED
+  liquidationPrice Decimal?
+  stopLoss         Decimal?
+  takeProfit       Decimal?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Order {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  symbol           String
+  side             String   // BUY, SELL
+  type             String   // MARKET, LIMIT, STOP_MARKET
+  status           String   @default("OPEN") // OPEN, FILLED, CANCELLED, EXPIRED
+  size             Decimal
+  price            Decimal? // Null for Market orders
+  stopPrice        Decimal? // For stop orders
+  leverage         Int      @default(1)
+  marginType       String   @default("CROSS")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Trade {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  symbol    String
+  side      String   // BUY, SELL
+  size      Decimal
+  price     Decimal
+  fee       Decimal  @default(0)
+  pnl       Decimal? // For closing trades
+  type      String   // OPEN, CLOSE
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}

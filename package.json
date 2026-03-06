@@ -1,0 +1,26 @@
+{
+  "name": "futuretrade24-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace=@futuretrade24/frontend",
+    "dev:backend": "npm run start:dev --workspace=@futuretrade24/backend",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "build:frontend": "npm run build --workspace=@futuretrade24/frontend",
+    "build:backend": "npm run build --workspace=@futuretrade24/backend",
+    "build": "npm run build:frontend && npm run build:backend",
+    "test:frontend": "npm run test --workspace=@futuretrade24/frontend",
+    "test:backend": "npm run test --workspace=@futuretrade24/backend",
+    "test": "npm run test:frontend && npm run test:backend",
+    "lint": "npm run lint --workspaces",
+    "format": "prettier --write \"packages/**/*.ts\" \"packages/**/*.tsx\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "husky": "^9.0.11",
+    "prettier": "^3.2.5"
+  }
+}
